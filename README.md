@@ -17,7 +17,7 @@ In order to help the team at Chinook music store, you need to answer the followi
 
 # Q1 
 Query 1 - In Which Year, Which Country Spent The Most Money and How Much in Total? */
-
+```sql
 WITH CTE AS
 	(
 	SELECT 
