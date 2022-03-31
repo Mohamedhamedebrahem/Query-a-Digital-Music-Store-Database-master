@@ -44,7 +44,7 @@ ORDER BY 2
 
 # Q2 
 Query 2 Which Genres Have an Average Track Unit Price More Than Overall Average? */
-
+```sql
 SELECT 
    g.name AS Genre,
    AVG(t.UnitPrice) AS "Average Unit Price", 
@@ -64,7 +64,7 @@ GROUP BY 1
 
 # Q3
 Query 3 Top 10 Albums based on sales?
-
+```sql
 SELECT a.albumid, a.title, ar.name AS Artist_Name, SUM(iv.unitprice * iv.quantity) AS Sales
 FROM Artist ar
 JOIN Album a
@@ -79,7 +79,7 @@ LIMIT 10;
 ```
 # Q4 
 Query 4 Total Spent Per Country Compared with Number of Tracks Sold?
-
+```sql
 SELECT i.billingcountry AS Country, SUM(iv.unitprice * iv.quantity) AS Sales, COUNT(t.trackid) AS No_Tracks
 FROM Invoice i
 JOIN InvoiceLine iv
