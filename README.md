@@ -16,37 +16,76 @@ For this lab, you will help the Chinook team understand the media in their store
 In order to help the team at Chinook music store, you need to answer the following 4 queries
 
 # Q1 
-The Chinook database contains all invoices from the beginning of 2009 till the end of 2013. The employees at Chinook store are interested in seeing all invoices that happened in 2013 only. Using the Invoice table, write a query that returns all the info of the invoices in 2013.
-```sql
-SELECT invoice.*
-FROM invoice
-where invoice.invoicedate between '2013-01-01' and '2014-01-01';
+Query 1 - In Which Year, Which Country Spent The Most Money and How Much in Total? */
+
+WITH CTE AS
+	(
+	SELECT 
+	   c.Country, 
+	   strftime('%Y', i.InvoiceDate) AS Year, 
+	   ROUND(SUM(i.total),2) AS total_sales
+	FROM Invoice AS i
+	JOIN InvoiceLine il
+	ON i.InvoiceId = il.InvoiceId
+	JOIN Customer AS c
+	ON c.CustomerId = i.CustomerId
+	GROUP BY 1,2
+	)
+
+SELECT 
+   Country, 
+   Year,
+   MAX(total_sales)AS Max_Sales
+FROM CTE
+GROUP BY 2
+ORDER BY 2
+
 ```
 
 # Q2 
-The Chinook team decided to run a marketing campaign in Brazil, Canada, india, and Sweden. They will start with the country that has the least customers. Using the customer table, write a query that returns the first name, last name, and country for all customers from the 4 countries.
-```sql
-SELECT firstName,lastName,country
-FROM customer
-WHERE country IN("Brazil","Canada","India","Sweden");
+Query 2 Which Genres Have an Average Track Unit Price More Than Overall Average? */
+
+SELECT 
+   g.name AS Genre,
+   AVG(t.UnitPrice) AS "Average Unit Price", 
+   (SELECT ROUND(AVG(unitprice),2) 
+   FROM Track ) AS "Overall Average"
+FROM Track t
+JOIN Genre g
+ON t.GenreId = g.GenreId
+WHERE T.UnitPrice > 
+		(
+		SELECT AVG(unitprice)
+		FROM Track
+		)
+GROUP BY 1
+
 ```
 
 # Q3
-Using the Track and Album tables, write a query that returns all the songs that start with the letter 'A' and the composer field is not empty. Your query should return the name of the song, the name of the composer, and the title of the album.
-```sql
-SELECT Track.name, Track.Composer, Album.Title 
-FROM Track
-JOIN Album
-ON Track.AlbumId = Album.AlbumId
-WHERE Track.name LIKE 'A%' AND Track.Composer NOT LIKE '';
+Query 3 Top 10 Albums based on sales?
+
+SELECT a.albumid, a.title, ar.name AS Artist_Name, SUM(iv.unitprice * iv.quantity) AS Sales
+FROM Artist ar
+JOIN Album a
+ON ar.artistid = a.artistid
+JOIN Track t
+ON a.albumid = t.albumid
+JOIN InvoiceLine iv
+ON iv.trackid = t.trackid
+GROUP BY a.albumid
+ORDER BY Sales DESC
+LIMIT 10;
 ```
 # Q4 
-The Chinook team would like to throw a promotional Music Festival for their top 10 customers who have spent the most in a single invoice. Write a query that returns the first name, last name, and invoice total for the top 10 invoices ordered by invoice total descending.
-```sql
-SELECT C.Firstname,C.Lastname,I.Total
-FROM Customer AS C
-JOIN Invoice AS I
-ON C.CustomerId =I.CustomerId
-ORDER BY I.total DESC
-LIMIT 10
+Query 4 Total Spent Per Country Compared with Number of Tracks Sold?
+
+SELECT i.billingcountry AS Country, SUM(iv.unitprice * iv.quantity) AS Sales, COUNT(t.trackid) AS No_Tracks
+FROM Invoice i
+JOIN InvoiceLine iv
+ON i.invoiceid = iv.invoiceid
+JOIN track t
+ON t.trackid = iv.trackid
+GROUP BY i.billingcountry
+ORDER BY sales DESC;
 ```
