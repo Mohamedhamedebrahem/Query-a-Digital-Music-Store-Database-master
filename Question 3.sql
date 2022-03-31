@@ -1,5 +1,13 @@
-SELECT Track.name, Track.Composer, Album.Title 
-FROM Track
-JOIN Album
-ON Track.AlbumId = Album.AlbumId
-WHERE Track.name LIKE 'A%' AND Track.Composer NOT LIKE '';
+Query 3 Top 10 Albums based on sales?
+
+SELECT a.albumid, a.title, ar.name AS Artist_Name, SUM(iv.unitprice * iv.quantity) AS Sales
+FROM Artist ar
+JOIN Album a
+ON ar.artistid = a.artistid
+JOIN Track t
+ON a.albumid = t.albumid
+JOIN InvoiceLine iv
+ON iv.trackid = t.trackid
+GROUP BY a.albumid
+ORDER BY Sales DESC
+LIMIT 10;
